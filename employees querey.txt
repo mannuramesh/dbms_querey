@@ -1,0 +1,141 @@
+CREATE TABLE DEPARTMENT(DNO VARCHAR2 (20) PRIMARY KEY,DNAME VARCHAR2 (20),MGRSTARTDATE DATE);
+
+
+CREATE TABLE EMPLOYEE(SSN VARCHAR2 (20) PRIMARY KEY,FNAME VARCHAR2 (20),LNAME VARCHAR2 (20),ADDRESS VARCHAR2 (20),SEX CHAR (1),SALARY INTEGER,SUPERSSN REFERENCES EMPLOYEE (SSN),DNO REFERENCES DEPARTMENT (DNO));
+
+
+ALTER TABLE DEPARTMENT ADD MGRSSN REFERENCES EMPLOYEE (SSN);
+
+CREATE TABLE DLOCATION(DLOC VARCHAR2 (20),DNO REFERENCES DEPARTMENT (DNO),PRIMARY KEY (DNO, DLOC));
+
+CREATE TABLE PROJECT(PNO INTEGER PRIMARY KEY,PNAME VARCHAR2 (20),PLOCATION VARCHAR2 (20),DNO REFERENCES DEPARTMENT (DNO));
+
+CREATE TABLE WORKS_ON(HOURS NUMBER (2),SSN REFERENCES EMPLOYEE (SSN),PNO REFERENCES PROJECT(PNO),PRIMARY KEY (SSN, PNO));
+
+
+
+
+
+insert into employee(ssn,fname,lname,address,sex,salary)
+values ('abce01','john','scott','chikkbalapur','M',450000);
+insert into employee(ssn,fname,lname,address,sex,salary)
+values ('abce02','james','smith','chikkbalapur','M',500000);
+insert into employee(ssn,fname,lname,address,sex,salary)
+values ('abce03','hearn','baker','chikkbalapur','M',700000);
+insert into employee(ssn,fname,lname,address,sex,salary)
+values ('abce04','girish','malaya','chikkbalapur','M',650000);
+insert into employee(ssn,fname,lname,address,sex,salary)
+values ('abce05','pavan','hegde','chikkbalapur','M',450000);
+
+
+insert into department values(1,'accounts','01-jan-01','abce01');
+insert into department values(2,'it','01-aug-16','abce01');
+insert into department values(3,'ece','01-jun-08','abce02');
+insert into department values(4,'ise','01-aug-15','abce03');
+insert into department values(5,'cse','01-jun-02','abce04');
+
+update employee set 
+superssn = null,dno='3'
+where ssn = 'abce01';
+
+update employee set
+superssn = null,dno = '2'
+where ssn = 'abce03';
+
+update employee set
+superssn = null, dno = '4'
+where ssn = 'abce02';
+
+update employee set
+superssn= null,dno = '1'
+where ssn = 'abce04';
+
+update employee set 
+superssn = null,dno = '2'
+where ssn = 'abce05';
+
+insert into dlocation values('chikkballapur',1);
+insert into dlocation values('manglore',2);
+
+insert into dlocation values('chikkballapur',3);
+
+insert into dlocation values('manglore',3);
+
+insert into dlocation values('chikkballapur',4);
+
+insert into dlocation values('chikkballapur',5);
+
+
+insert into project values(100,'iot','chikkballapur',1);
+insert into project values(101,'cloud','chikkballapur',2);
+insert into project values(102,'bigdata','chikkballapur',2);
+insert into project values(103,'sensors','chikkballapur',4);
+insert into project values(104,'bank','chikkballapur',5);
+insert into project values(105,'smart city','chikkballapur',3);
+insert into project values(106,'accounts','chikkabalapur',4);
+insert into works_on values(5,'abce01',100);
+insert into works_on values(2,'abce02',101);
+insert into works_on values(3,'abce03',102);
+insert into works_on values(2,'abce04',104);
+insert into works_on values(4,'abce05',105);
+
+select distinct p.pno
+  	from  project p,department d,employee e
+	where e.dno = d.dno
+	and d.mgrssn = e.ssn
+	and e.lname = 'scott'
+	union
+	select distinct p1.pno
+	from project p1,works_on w,employee e1
+	where p1.pno = w.pno
+	and e1.ssn = w.ssn
+	and e1.lname = 'scott';
+
+SELECT DISTINCT P.PNO FROM PROJECT P, DEPARTMENT D, EMPLOYEE E WHERE E.DNO=D.DNO AND D.MGRSSN=E.SSN AND E.LNAME='scott' UNION SELECT DISTINCT P1.PNO FROM PROJECT P1, WORKS_ON W, EMPLOYEE E1 WHERE P1.PNO=W.PNO AND E1.SSN=W.SSN AND E1.LNAME='scott';
+
+SELECT E.FNAME, E.LNAME, 1.1*E.SALARY AS INCR_SAL FROM EMPLOYEE E, WORKS_ON W, PROJECT P WHERE E.SSN=W.SSN AND W.PNO=P.PNO AND P.PNAME='iot';
+
+//working code
+SELECT SUM (E.SALARY), MAX (E.SALARY), MIN (E.SALARY), AVG 
+(E.SALARY)
+FROM EMPLOYEE E, DEPARTMENT D
+WHERE E.DNO=D.DNO
+AND D.DNAME='accounts';
+
+//not working code
+SELECT SUM (E.SALARY), MAX (E.SALARY), MIN (E.SALARY), AVG 
+(E.SALARY)
+FROM EMPLOYEE E, DEPARTMENT D
+WHERE E.DNO=D.DNO
+AND D.DNAME='ACCOUNTS';
+
+SELECT E.FNAME, E.LNAME
+FROM EMPLOYEE E
+WHERE NOT EXISTS((SELECT PNO
+FROM PROJECT
+ WHERE DNO=5)
+ MINUS (SELECT PNO
+ FROM WORKS_ON 
+ WHERE E.SSN=SSN));
+
+
+
+SELECT D.DNO, COUNT (*)
+FROM DEPARTMENT D, EMPLOYEE E
+WHERE D.DNO=E.DNO
+AND E.SALARY>60000 
+AND D.DNO IN (SELECT E1.DNO
+FROM EMPLOYEE E1
+GROUP BY E1.DNO
+HAVING COUNT (*)>5)
+GROUP BY D.DNO;
+
+select d.dno,count(*)
+	from department d ,employee e
+	where d.dno = e.dno
+	and e.salary > 60000
+	and d.dno in (select e1.dno
+	from employee e1
+	group by e1.dno
+	having count(*) > 0)
+	group by d.dno;

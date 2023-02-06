@@ -1,0 +1,82 @@
+insert into publisher values('mc graw hill',9989076587,'bengaluru');
+
+insert into publisher values('pearson',9989076565,'new delhi');
+insert into publisher values('random house',7455679345,'hyderabad');
+insert into publisher values('hachette livre',8970862340,'chennai');
+insert into publisher values('grupo planeta',7756120238,'bengaluru');
+
+
+insert into book values(3,'dbms','jan-2017','mc graw hill');
+insert into book values(4,'adbms','jun-2016','mc graw hill');
+insert into book values(5,'cn','sep-2016','pearson');
+insert into book values(6,'cg','sep-2015','grupo planeta');
+insert into book values(7,'dbms','may-2016','pearson');
+
+insert into book_authors values('navathe',3);
+insert into book_authors values('navathe',4);
+insert into book_authors values('tanenbaum',5);
+insert into book_authors values('edward angel',6);
+insert into book_authors values('galvin',7);
+
+insert into library_branch values(10,'rr nagar','bengaluru');
+insert into library_branch values(11,'rnsit','bengaluru');
+insert into library_branch values(12,'rajaji nagar','bengaluru');
+insert into library_branch values(13,'rr nitte','mangaluru');
+insert into library_branch values(14,'manipal','udupi');
+
+insert into book_copies values(10,3,10);
+insert into book_copies values(5,3,11);
+insert into book_copies values(2,4,12);
+insert into book_copies values(5,4,13);
+insert into book_copies values(7,5,14);
+insert into book_copies values(1,6,10);
+insert into book_copies values(10,7,11);
+
+insert into card values(100);
+insert into card values(101);
+insert into card values(102);
+insert into card values(103);
+insert into card values(104);
+
+insert into book_lending values('01-jan-17','01-jan-17',3,10,101);
+insert into book_lending values('11-jan-17','11-mar-17',5,14,101);
+insert into book_lending values('21-feb-17','21-apr-17',4,13,101);
+insert into book_lending values('15-mar-17','15-jul-17',6,11,101);
+insert into book_lending values('12-apr-17','12-may-17',3,11,104);
+
+SQL> select b.book_id, b.title, b.publishername, a.author_name, c.no_of_copies, l.branch_id from boo
+k b,book_authors a, book_copies c,library_branch l where b.book_id=a.book_id and b.book_id=c.book_id
+ and l.branch_id=c.branch_id;
+
+
+SQL> select card_no from book_lending where date_out between '01-jan-2017' and '01-jul-2017' group b
+y card_no having count(*)>3;
+
+select salesman.salesman_id, name, cust_name, commission from salesman, customer1 where salesman.city=customer1.city union select salesman_id, name,'no match', commission from salesman where not city=any(select city from customer1) order by 2 desc;
+
+select salesman.salesman_id, name, cust_name, commission from salesman, customer1 where salesman.city=customer1.city union select salesman_id,name, 'no match', commission from salesman where not city=any(select city from customer1) order by 2 desc;
+
+
+
+create view elitsalesman as select b.ord_date, a.salesman_id,a.name from salesman a, orders b where a.salesman_id=b.salesman_id and b.purchase_amt=(select max(purchase_amt) from orders where c.ord_date=b.ord_date);
+
+
+CREATE VIEW V_ELITSALESMAN AS SELECT B.ORD_DATE, A.SALESMAN_ID, A.NAME FROM SALESMAN A, ORDERS B, WHERE A.SALESMAN_ID = B.SALESMAN_ID AND B.PURCHASE_AMT=(SELECT MAX (PURCHASE_AMT));
+
+create view elitsalesman as select b.ord_date, a.salesman_id, a.name and b.purchase_amt=(select max(purchase_amt)) from salesman a, orders b where c.ord_date=b.ord_date;
+
+
+CREATE VIEW ELITSALESMAN AS SELECT B.ORD_DATE, A.SALESMAN_ID, A.NAME FROM SALESMAN A, ORDERS B WHERE A.SALESMAN_ID = B.SALESMAN_ID AND B.PURCHASE_AMT=(SELECT MAX (PURCHASE_AMT) FROM ORDERS WHERE C.ORD_DATE = B.ORD_DATE);
+
+
+create view elitsalesman as select b.ord_date, a.salesman_id, a.name, b.purchase_amt from salesman a join orders b on a.salesman_id=b.salesman_id where b.purchase_amt=(select max(purchase_amt) from orders);
+
+
+
+//correct version
+
+create view elitesalesman as select b.ord_date, a.salesman_id, a.name from salesman a join orders b on a.salesman_id=b.salesman_id where b.purchase_amt=(select max(purchase_amt) from orders b2 where b2.ord_date=b.ord_date);
+
+
+
+ delete from salesman where salesman_id=100;

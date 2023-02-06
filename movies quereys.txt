@@ -1,0 +1,49 @@
+insert into actor values(301,'ANUSHKA','F');
+insert into actor values(302,'PRABHAS','M');
+insert into actor values(303,'PUNITH','M');
+insert into actor values(304,'R DOWNEY JR','M');
+
+insert into director values(60,'RAJAMOULI',8751611001);
+insert into director values(61,'HITCHCOCK',2039485766);
+insert into director values(62,'FARAN',5647382910);
+insert into director values(63,'JAMES CAMERON',1234567890);
+
+insert into movies values(1001,'BAHUBALI-2',2017,'TELUGU',60);
+insert into movies values(1002,'BAHUBALI-1',2014,'TELUGU',60);
+insert into movies values(1003,'AKASH',2008,'KANNADA',61);
+insert into movies values(1004,'IRON MAN 4',2025,'ENGLISH',63);
+
+insert into movie_cast values(301,1002,'Heroine');
+insert into movie_cast values(301,1001,'Heroine');
+insert into movie_cast values(303,1003,'Hero');
+insert into movie_cast values(303,1002,'Guest');
+insert into movie_cast values(304,1004,'Hero');
+
+insert into rating values(1001,4);
+insert into rating values(1002,2);
+insert into rating values(1003,5);
+insert into rating values(1004,4);
+
+ select dir_id from director where dir_name='HITCHCOCK';
+
+ select mov_title from movies m, movie_cast mv where m.mov_id=mv.mov_id and act_id in(select act_id from movie_cast group by act_id having count(act_id)>1) group by mov_title having count(*)>1;
+
+SELECT MOV_TITLE
+FROM MOVIES M, MOVIE_CAST MV 
+WHERE M.MOV_ID=MV.MOV_ID AND ACT_ID IN (SELECT ACT_ID
+FROM MOVIE_CAST GROUP BY ACT_ID
+HAVING COUNT (ACT_ID)>1)
+GROUP BY MOV_TITLE
+HAVING COUNT (*)>1;
+
+
+SELECT A.ACT_NAME, C.MOV_TITLE, C.MOV_YEAR FROM ACTOR A, MOVIE_CAST B, MOVIES C WHERE A.ACT_ID=B.ACT_ID AND B.MOV_ID=C.MOV_ID AND C.MOV_YEAR NOT BETWEEN 2000 AND 2015; 
+
+OR 
+
+select act_name, mov_title, mov_year from actor a join movie_cast c on a.act_id=c.act_id join movies m on c.mov_id=m.mov_id where m.mov_year not between 2000 and 2015;
+
+SQL> select mov_title, max(rev_stars) from movies inner join rating using(mov_id) group by mov_title
+ having max(rev_stars)>0 order by mov_title;
+
+UPDATE RATING SET REV_STARS=3 WHERE MOV_ID IN (SELECT MOV_ID FROM MOVIES WHERE DIR_ID IN (SELECT DIR_ID FROM DIRECTOR WHERE DIR_ID=63));
